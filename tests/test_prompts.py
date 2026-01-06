@@ -52,7 +52,7 @@ class TestAnalystPrompt:
 
         prompt = build_analyst_prompt(processo)
 
-        assert "Classificacao" in prompt or "CLASSIFICACAO" in prompt or "classificacao" in prompt
+        assert "Classificação" in prompt or "Classificacao" in prompt or "CLASSIFICACAO" in prompt
         assert "Pesquisa" in prompt or "PESQUISA" in prompt
         assert "Comparacao" in prompt or "Comparativa" in prompt or "COMPARATIVA" in prompt
 
@@ -138,7 +138,7 @@ class TestConsolidatorPrompt:
         )
 
         assert "Markdown" in prompt or "markdown" in prompt
-        assert "ATENCAO" in prompt or "Atencao" in prompt or "vermelhos" in prompt.lower()
+        assert "ATENÇÃO" in prompt or "ATENCAO" in prompt or "Atenção" in prompt or "vermelhos" in prompt.lower()
 
 
 class TestConversationPrompt:

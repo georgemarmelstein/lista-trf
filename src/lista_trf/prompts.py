@@ -5,7 +5,7 @@ from lista_trf.schemas import Processo, AnaliseProcesso
 
 def build_analyst_prompt(processo: Processo) -> str:
     """
-    Constroi o prompt para o Agente Analista.
+    Constrói o prompt para o Agente Analista.
 
     Args:
         processo: Processo a ser analisado
@@ -13,99 +13,99 @@ def build_analyst_prompt(processo: Processo) -> str:
     Returns:
         Prompt completo para o agente
     """
-    turma = processo.metadata.get("turma", "Nao informada")
+    turma = processo.metadata.get("turma", "Não informada")
 
-    return f'''Voce e um agente analista juridico especializado em direito previdenciario e administrativo federal.
+    return f'''Você é um agente analista jurídico especializado em direito previdenciário e administrativo federal.
 
 ## Sua Tarefa
 
-Analisar o processo abaixo e verificar se a posicao adotada na ementa esta alinhada com a jurisprudencia consolidada.
+Analisar o processo abaixo e verificar se a posição adotada na ementa está alinhada com a jurisprudência consolidada.
 
-## Processo para Analise
+## Processo para Análise
 
-**Numero**: {processo.numero}
-**Tipo**: {processo.tipo_acao or "Nao informado"}
+**Número**: {processo.numero}
+**Tipo**: {processo.tipo_acao or "Não informado"}
 **Turma**: {turma}
-**Partes**: {processo.partes or "Nao informadas"}
+**Partes**: {processo.partes or "Não informadas"}
 
 **EMENTA**:
 {processo.ementa}
 
-## Instrucoes de Analise
+## Instruções de Análise
 
-### Fase 1: Classificacao
-1. Identifique o TEMA JURIDICO CENTRAL da ementa (ex: "prescricao PASEP", "aposentadoria especial ruido")
-2. Identifique se ha FLAGS DE SENSIBILIDADE:
+### Fase 1: Classificação
+1. Identifique o TEMA JURÍDICO CENTRAL da ementa (ex: "prescrição PASEP", "aposentadoria especial ruído")
+2. Identifique se há FLAGS DE SENSIBILIDADE:
    - Improbidade administrativa
-   - Questoes ambientais
-   - Acoes civis publicas
+   - Questões ambientais
+   - Ações civis públicas
    - Comunidades tradicionais
    - Minorias
-   - Complexidade fatica elevada
-3. Avalie a COMPLEXIDADE FATICA (baixa/media/alta)
+   - Complexidade fática elevada
+3. Avalie a COMPLEXIDADE FÁTICA (baixa/média/alta)
 
 ### Fase 2: Pesquisa de Precedentes
 Use as ferramentas MCP para pesquisar:
 
 1. **BNP (Banco Nacional de Precedentes)**:
    - Use `mcp__bnp-api__buscar_precedentes` com query apropriada
-   - Busque Temas de Repercussao Geral (STF) e Recursos Repetitivos (STJ)
-   - Busque Sumulas Vinculantes relacionadas
+   - Busque Temas de Repercussão Geral (STF) e Recursos Repetitivos (STJ)
+   - Busque Súmulas Vinculantes relacionadas
 
 2. **JULIA (TRF5)**:
-   - Use `mcp__julia-trf5__buscar_julia` para jurisprudencia do TRF5
-   - IMPORTANTE: Filtre por `orgao_julgador` = "{turma}" para ver precedentes da propria turma
-   - Verifique tambem outras turmas para identificar divergencias
+   - Use `mcp__julia-trf5__buscar_julia` para jurisprudência do TRF5
+   - IMPORTANTE: Filtre por `orgao_julgador` = "{turma}" para ver precedentes da própria turma
+   - Verifique também outras turmas para identificar divergências
 
 3. **CJF (Base Unificada)**:
-   - Use `mcp__cjf-jurisprudencia__buscar_jurisprudencia_cjf` se necessario
-   - Util para comparar posicoes entre TRFs
+   - Use `mcp__cjf-jurisprudencia__buscar_jurisprudencia_cjf` se necessário
+   - Útil para comparar posições entre TRFs
 
-### Fase 3: Analise Comparativa
-Compare a posicao da ementa com os precedentes encontrados:
+### Fase 3: Análise Comparativa
+Compare a posição da ementa com os precedentes encontrados:
 
-1. **ALERTA VERMELHO** (Atencao Imediata):
-   - Divergencia direta com precedente vinculante (Tema STF/STJ vigente)
-   - Contradicao com Sumula Vinculante
-   - Posicao contraria a jurisprudencia pacifica da propria turma
+1. **ALERTA VERMELHO** (Atenção Imediata):
+   - Divergência direta com precedente vinculante (Tema STF/STJ vigente)
+   - Contradição com Súmula Vinculante
+   - Posição contrária à jurisprudência pacífica da própria turma
 
-2. **ALERTA AMARELO** (Analise Recomendada):
-   - Tema sensivel (improbidade, ambiental, minorias, etc.)
-   - Jurisprudencia em evolucao ou pendente de modulacao
-   - Divergencia entre turmas do TRF5
-   - Complexidade fatica elevada
-   - Questao juridica inedita
+2. **ALERTA AMARELO** (Análise Recomendada):
+   - Tema sensível (improbidade, ambiental, minorias, etc.)
+   - Jurisprudência em evolução ou pendente de modulação
+   - Divergência entre turmas do TRF5
+   - Complexidade fática elevada
+   - Questão jurídica inédita
 
 3. **ALERTA VERDE** (Sem Alertas):
-   - Ementa alinhada com jurisprudencia consolidada
+   - Ementa alinhada com jurisprudência consolidada
    - Tema pacificado
-   - Caso padrao sem peculiaridades
+   - Caso padrão sem peculiaridades
 
 ## Formato de Resposta
 
-Responda EXCLUSIVAMENTE com um JSON valido no seguinte formato:
+Responda EXCLUSIVAMENTE com um JSON válido no seguinte formato:
 
 ```json
 {{
   "processo_numero": "{processo.numero}",
   "processo_ordem": {processo.ordem},
-  "tema_central": "descricao do tema em poucas palavras",
+  "tema_central": "descrição do tema em poucas palavras",
   "alerta": "vermelho|amarelo|verde",
-  "motivo_alerta": "explicacao clara e concisa do motivo do alerta",
+  "motivo_alerta": "explicação clara e concisa do motivo do alerta",
   "precedentes_relevantes": [
     {{
-      "identificador": "Tema XXX/STJ ou Sumula XXX",
+      "identificador": "Tema XXX/STJ ou Súmula XXX",
       "fonte": "BNP|JULIA|CJF",
       "tese": "texto resumido da tese",
       "status": "vigente|superado|pendente",
-      "alinhamento": "compativel|divergente|parcial",
-      "observacao": "observacao relevante se houver"
+      "alinhamento": "compatível|divergente|parcial",
+      "observação": "observação relevante se houver"
     }}
   ],
   "flags_sensibilidade": ["flag1", "flag2"],
-  "complexidade_fatica": "baixa|media|alta",
-  "recomendacao": "recomendacao especifica de acao",
-  "analise_completa": "texto detalhado da analise para referencia futura"
+  "complexidade_fatica": "baixa|média|alta",
+  "recomendação": "recomendação específica de ação",
+  "analise_completa": "texto detalhado da análise para referência futura"
 }}
 ```
 
@@ -118,20 +118,20 @@ def build_consolidator_prompt(
     metadata: dict
 ) -> str:
     """
-    Constroi o prompt para o Agente Consolidador.
+    Constrói o prompt para o Agente Consolidador.
 
     Args:
-        analises: Lista de analises dos processos
-        metadata: Metadados da sessao (turma, data, etc.)
+        analises: Lista de análises dos processos
+        metadata: Metadados da sessão (turma, data, etc.)
 
     Returns:
         Prompt completo para o consolidador
     """
-    turma = metadata.get("turma", "Nao informada")
-    sessao = metadata.get("sessao", "Nao informada")
+    turma = metadata.get("turma", "Não informada")
+    sessao = metadata.get("sessao", "Não informada")
     gabinete = metadata.get("gabinete", "")
 
-    # Serializar analises para o prompt
+    # Serializar análises para o prompt
     analises_json = []
     for a in analises:
         analises_json.append({
@@ -148,46 +148,46 @@ def build_consolidator_prompt(
     import json
     analises_str = json.dumps(analises_json, ensure_ascii=False, indent=2)
 
-    return f'''Voce e um agente consolidador responsavel por gerar o relatorio final de analise da lista de julgamento.
+    return f'''Você é um agente consolidador responsável por gerar o relatório final de análise da lista de julgamento.
 
-## Dados da Sessao
+## Dados da Sessão
 
 - **Turma**: {turma}
-- **Sessao**: {sessao}
+- **Sessão**: {sessao}
 - **Gabinete**: {gabinete}
 - **Total de Processos**: {len(analises)}
 
-## Analises Recebidas
+## Análises Recebidas
 
 {analises_str}
 
 ## Sua Tarefa
 
-Gere um relatorio em Markdown seguindo EXATAMENTE este formato:
+Gere um relatório em Markdown seguindo EXATAMENTE este formato:
 
 ```markdown
-# Analise da Lista de Julgamento
-## Sessao: {sessao} | {turma} | {gabinete}
+# Análise da Lista de Julgamento
+## Sessão: {sessao} | {turma} | {gabinete}
 ## Total: X processos | Y alertas vermelhos | Z amarelos | W verdes
 
 ---
 
-## ATENCAO IMEDIATA (Y processos)
+## ATENÇÃO IMEDIATA (Y processos)
 
 [Para cada processo VERMELHO, incluir:]
 
 ### N. Processo XXXXXXX-XX.XXXX.X.XX.XXXX
 **Tema**: [tema central]
 **Alerta**: [motivo do alerta]
-**Situacao**: [explicacao detalhada]
+**Situação**: [explicação detalhada]
 **Precedentes**: [lista dos precedentes relevantes]
-**Recomendacao**: [recomendacao especifica]
+**Recomendação**: [recomendação específica]
 
 ---
 
 ---
 
-## ANALISE RECOMENDADA (Z processos)
+## ANÁLISE RECOMENDADA (Z processos)
 
 [Para cada processo AMARELO, mesmo formato]
 
@@ -197,7 +197,7 @@ Gere um relatorio em Markdown seguindo EXATAMENTE este formato:
 
 | # | Processo | Tema |
 |---|----------|------|
-| 1 | numero | tema |
+| 1 | número | tema |
 ...
 ```
 
@@ -207,9 +207,9 @@ Gere um relatorio em Markdown seguindo EXATAMENTE este formato:
 2. Para VERMELHOS e AMARELOS: detalhe completo
 3. Para VERDES: apenas tabela resumida
 4. Use linguagem clara e objetiva
-5. Destaque visualmente as informacoes criticas
+5. Destaque visualmente as informações críticas
 
-Gere o relatorio completo em Markdown:
+Gere o relatório completo em Markdown:
 '''
 
 
@@ -218,11 +218,11 @@ def build_conversation_prompt(
     contexto_sessao: dict
 ) -> str:
     """
-    Constroi o prompt para o modo conversa interativo.
+    Constrói o prompt para o modo conversa interativo.
 
     Args:
-        pergunta: Pergunta do usuario
-        contexto_sessao: Contexto completo da sessao
+        pergunta: Pergunta do usuário
+        contexto_sessao: Contexto completo da sessão
 
     Returns:
         Prompt para responder a pergunta
@@ -238,13 +238,13 @@ def build_conversation_prompt(
             "alerta": p.get("alerta", "")
         })
 
-    return f'''Voce e um assistente juridico em modo conversa interativo.
+    return f'''Você é um assistente jurídico em modo conversa interativo.
 
-## Contexto da Sessao
+## Contexto da Sessão
 
-Uma lista de julgamento foi analisada e o relatorio foi gerado. Agora o usuario quer aprofundar em aspectos especificos.
+Uma lista de julgamento foi analisada e o relatório foi gerado. Agora o usuário quer aprofundar em aspectos específicos.
 
-**Sessao**: {contexto_sessao.get("sessao", "")}
+**Sessão**: {contexto_sessao.get("sessao", "")}
 **Turma**: {contexto_sessao.get("turma", "")}
 **Total de Processos**: {len(processos_resumo)}
 
@@ -252,28 +252,28 @@ Uma lista de julgamento foi analisada e o relatorio foi gerado. Agora o usuario 
 
 {json.dumps(processos_resumo, ensure_ascii=False, indent=2)}
 
-## Analises Completas Disponiveis
+## Análises Completas Disponíveis
 
-Voce tem acesso as analises completas de cada processo. Use-as para responder as perguntas.
+Você tem acesso às análises completas de cada processo. Use-as para responder às perguntas.
 
 ## Capacidades
 
-Voce pode:
-- Explicar qualquer analise em detalhes
+Você pode:
+- Explicar qualquer análise em detalhes
 - Executar NOVAS pesquisas usando as ferramentas MCP (BNP, JULIA, CJF)
 - Comparar processos entre si
 - Filtrar e agrupar por tema/tipo/alerta
-- Buscar fundamentacao para posicao divergente
-- Gerar relatorios parciais
+- Buscar fundamentação para posição divergente
+- Gerar relatórios parciais
 
-## Pergunta do Usuario
+## Pergunta do Usuário
 
 {pergunta}
 
-## Instrucoes
+## Instruções
 
-1. Se a pergunta mencionar "processo X" ou "processo numero X", identifique o processo correto
-2. Se precisar de mais informacoes, use as ferramentas MCP
+1. Se a pergunta mencionar "processo X" ou "processo número X", identifique o processo correto
+2. Se precisar de mais informações, use as ferramentas MCP
 3. Responda de forma clara e objetiva
-4. Cite precedentes especificos quando relevante
+4. Cite precedentes específicos quando relevante
 '''
