@@ -43,3 +43,7 @@ output/
 # OS
 .DS_Store
 Thumbs.db
+
+# Documents
+*.docx
+*.doc
