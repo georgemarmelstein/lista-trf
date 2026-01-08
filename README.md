@@ -91,6 +91,11 @@ lista-trf/
 │   ├── 02-de-acordo/      # Processos aprovados
 │   └── 03-destacar/       # Processos para destaque
 │
+├── mcp/                   # Servidores MCP (jurisprudencia)
+│   ├── bnp-api/           # Banco Nacional de Precedentes
+│   ├── julia-trf5/        # Jurisprudencia TRF5
+│   └── cjf-jurisprudencia/# Jurisprudencia Unificada CJF
+│
 ├── output/                # Relatorios gerados
 ├── listas/                # Listas importadas
 ├── arquivados/            # Processos arquivados
@@ -194,8 +199,55 @@ processos/01-a-analisar/0800307-06.2025.4.05.8103/
 }
 ```
 
+## Dependencias MCP (Claude Code)
+
+O sistema agentico requer servidores MCP para pesquisa de jurisprudencia.
+
+### Instalacao dos MCPs
+
+```bash
+# 1. Copiar servidores para ~/.claude/mcp-servers/
+cp -r mcp/bnp-api ~/.claude/mcp-servers/
+cp -r mcp/julia-trf5 ~/.claude/mcp-servers/
+cp -r mcp/cjf-jurisprudencia ~/.claude/mcp-servers/
+
+# 2. Instalar dependencias
+pip install mcp requests beautifulsoup4
+
+# 3. Configurar credenciais do JULIA (se necessario)
+cp mcp/julia-trf5/credentials.example.json ~/.claude/mcp-servers/julia-trf5/credentials.json
+# Edite com suas credenciais
+
+# 4. Reiniciar Claude Code
+claude --mcp-restart
+```
+
+### Configuracao em ~/.claude/settings.json
+
+```json
+{
+  "mcpServers": {
+    "bnp-api": {
+      "command": "python",
+      "args": ["~/.claude/mcp-servers/bnp-api/server.py"]
+    },
+    "cjf-jurisprudencia": {
+      "command": "python",
+      "args": ["~/.claude/mcp-servers/cjf-jurisprudencia/server.py"]
+    },
+    "julia-trf5": {
+      "command": "python",
+      "args": ["~/.claude/mcp-servers/julia-trf5/server.py"]
+    }
+  }
+}
+```
+
+Documentacao completa dos MCPs em [mcp/README.md](mcp/README.md).
+
 ## Requisitos
 
+### Interface Web
 - Python 3.11+
 - Dependencias: `pip install -r requirements.txt`
   - FastAPI
@@ -203,6 +255,11 @@ processos/01-a-analisar/0800307-06.2025.4.05.8103/
   - python-docx
   - pydantic
   - PyMuPDF (para PDF)
+
+### Sistema Agentico (Claude Code)
+- Claude Code CLI
+- Servidores MCP configurados (ver secao acima)
+- Dependencias MCP: `pip install mcp requests beautifulsoup4`
 
 ## Licenca
 
