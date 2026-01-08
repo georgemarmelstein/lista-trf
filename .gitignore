@@ -1,4 +1,6 @@
+# ===========================================
 # Python
+# ===========================================
 __pycache__/
 *.py[cod]
 *$py.class
@@ -20,30 +22,97 @@ wheels/
 .installed.cfg
 *.egg
 
+# ===========================================
 # Virtual environments
+# ===========================================
 .venv/
 venv/
 ENV/
+env/
 
-# IDE
+# ===========================================
+# IDE / Editors
+# ===========================================
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
+.project
+.pydevproject
+.settings/
 
+# ===========================================
 # Testing
+# ===========================================
 .pytest_cache/
 .coverage
 htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
 
-# Output
-output/
-*.log
-
+# ===========================================
 # OS
+# ===========================================
 .DS_Store
 Thumbs.db
+Desktop.ini
+nul
+NUL
 
-# Documents
+# ===========================================
+# Logs
+# ===========================================
+*.log
+logs/
+
+# ===========================================
+# Documentos (listas importadas)
+# ===========================================
 *.docx
 *.doc
+*.pdf
+
+# ===========================================
+# Arquivos temporarios
+# ===========================================
+temp/
+tmp/
+*.tmp
+temp_*.json
+*temp*.json
+*.bak
+*.backup
+
+# Arquivos com paths malformados (bug do Windows)
+C:Users*
+Users*
+
+# ===========================================
+# Dados do projeto (nao versionados)
+# ===========================================
+# Processos em analise
+processos/
+
+# Listas importadas
+listas/
+
+# Processos arquivados
+arquivados/
+
+# Relatorios gerados
+output/
+*.docx
+relatorio_*.docx
+
+# ===========================================
+# Seguranca
+# ===========================================
+.env
+.env.local
+*.key
+*.pem
+secrets/
+credentials/

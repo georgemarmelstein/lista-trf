@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista TRF - Analisador de Listas de Julgamento</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css?v=10">
+</head>
+<body class="tema-escuro">
+    <header>
+        <a href="/" class="logo" title="Voltar ao inicio">
+            <img src="/static/logo.webp" alt="Logo" class="logo-img">
+            <div class="logo-text-container">
+                <span class="logo-text">Lista TRF</span>
+                <span class="logo-subtitle">Analisador de Listas de Julgamento</span>
+            </div>
+        </a>
+        <div class="header-controls">
+            <input type="text" id="busca" placeholder="Buscar processo ou conteudo...">
+            <button id="btn-tema" class="btn-tema-toggle" title="Alternar tema claro/escuro">
+                <span class="icon-sol">&#9788;</span>
+                <span class="icon-lua">&#9790;</span>
+            </button>
+            <button id="btn-importar" class="btn-primary" title="Importar lista de julgamento">Importar</button>
+            <button id="btn-relatorio" class="btn-relatorio" title="Gerar relatorio Word">Relatorio</button>
+            <button id="btn-atualizar" title="Atualizar lista">Atualizar</button>
+            <button id="btn-limpar" class="btn-limpar" title="Arquivar todos os processos">Limpar</button>
+            <span id="contador">Processos: 0</span>
+        </div>
+    </header>
+
+    <main class="kanban-container">
+        <div class="kanban-board">
+            <div class="kanban-coluna" data-estado="a-analisar">
+                <h2>A Analisar <span class="count">0</span></h2>
+                <div class="kanban-cards"></div>
+            </div>
+            <div class="kanban-coluna" data-estado="de-acordo">
+                <h2>De Acordo <span class="count">0</span></h2>
+                <div class="kanban-cards"></div>
+            </div>
+            <div class="kanban-coluna" data-estado="destacar">
+                <h2>Destacar <span class="count">0</span></h2>
+                <div class="kanban-cards"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Importacao -->
+    <div id="importar-modal" class="modal hidden">
+        <div class="modal-importar">
+            <div class="modal-importar-header">
+                <h3>Importar Lista de Julgamento</h3>
+                <button id="btn-fechar-importar" class="btn-fechar">&times;</button>
+            </div>
+            <div class="modal-importar-content">
+                <div id="drop-zone" class="drop-zone">
+                    <div class="drop-zone-icon">&#128196;</div>
+                    <p>Arraste o arquivo aqui</p>
+                    <p class="drop-zone-hint">ou clique para selecionar</p>
+                    <p class="drop-zone-formats">Formatos aceitos: DOCX, PDF, TXT</p>
+                    <input type="file" id="file-input" accept=".docx,.pdf,.txt" hidden>
+                </div>
+                <div class="separador">
+                    <span>OU</span>
+                </div>
+                <div class="texto-area-container">
+                    <textarea id="texto-colar" placeholder="Cole o texto da lista aqui..."></textarea>
+                </div>
+            </div>
+            <div class="modal-importar-footer">
+                <button id="btn-cancelar-importar">Cancelar</button>
+                <button id="btn-confirmar-importar" class="btn-primary">Importar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Preview em Tela Cheia -->
+    <div id="preview-modal" class="modal hidden">
+        <div class="modal-header">
+            <div class="titulo-processo">
+                <a href="#" id="btn-home" title="Voltar ao Kanban">&#8592;</a>
+                <span id="preview-ordem" class="ordem-badge" style="display:none;" title="Numero na lista de julgamento"></span>
+                <h3 id="preview-titulo"></h3>
+                <span id="preview-risco" class="risco-badge"></span>
+                <button id="btn-copiar-numero" title="Copiar numero do processo">Copiar</button>
+            </div>
+            <div class="modal-actions">
+                <button id="btn-pdf-processo" class="btn-pdf" title="Baixar documento Word desta analise">Doc</button>
+                <button id="btn-de-acordo" class="btn-success" title="Marcar como De Acordo">De Acordo</button>
+                <button id="btn-destacar" class="btn-danger" title="Marcar para Destacar">Destacar</button>
+                <button id="btn-fechar-preview">Fechar</button>
+            </div>
+        </div>
+        <div class="modal-content">
+            <div class="preview-coluna">
+                <div class="preview-coluna-header">
+                    <h4>Ementa Original</h4>
+                </div>
+                <div id="preview-ementa" class="preview-texto"></div>
+            </div>
+            <div class="preview-coluna">
+                <div class="preview-coluna-header">
+                    <h4>Analise Comparativa</h4>
+                </div>
+                <div id="preview-analise" class="preview-texto"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p id="loading-message">Processando...</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="/static/app.js?v=5"></script>
+</body>
+</html>

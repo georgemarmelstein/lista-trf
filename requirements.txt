@@ -1,0 +1,9 @@
+# Dependencias para o front-end Kanban
+fastapi>=0.115.0
+uvicorn>=0.34.0
+python-multipart>=0.0.20
+python-docx>=1.2.0
+pymupdf>=1.24.0
+
+# Dependencias existentes do projeto
+pydantic>=2.0.0
