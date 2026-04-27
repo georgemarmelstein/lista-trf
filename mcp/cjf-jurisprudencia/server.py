@@ -145,10 +145,25 @@ def extrair_documentos(html_content: str) -> List[Dict[str, Any]]:
         ]
 
         for campo, label in campos:
-            pattern = rf'tabelaDocumentos:{idx}:.*?label_pontilhada[^>]*>{label}</span>.*?<td[^>]*>([^<]+)</td>'
+            pattern = rf'tabelaDocumentos:{idx}:.*?label_pontilhada[^>]*>{label}</span>.*?<td[^>]*>(.*?)</td>'
             match = re.search(pattern, content, re.DOTALL)
             if match:
-                doc[campo] = match.group(1).strip()
+                valor = match.group(1)
+                valor = re.sub(r'<br\s*/?>', ' | ', valor, flags=re.IGNORECASE)
+                valor = re.sub(r'<[^>]+>', '', valor)
+                valor = re.sub(r'\s+', ' ', valor).strip(' |').strip()
+                valor = re.sub(r'\s*\.\.(SIGLA_CLASSE|FONTE_PUBLICACAO|DTPB|DTPP|DTDP)\s*:?.*$', '', valor).strip()
+                partes = [p.strip() for p in valor.split(' | ') if p.strip()]
+                vistos = []
+                for p in partes:
+                    if p not in vistos:
+                        vistos.append(p)
+                valor = ' | '.join(vistos)
+                if campo == "numero":
+                    cnj = re.search(r'\d{7}-?\d{2}\.?\d{4}\.?\d\.?\d{2}\.?\d{4}', valor)
+                    if cnj:
+                        valor = cnj.group(0)
+                doc[campo] = valor
 
         # Decisão (pode ter tags internas)
         decisao_match = re.search(
@@ -315,11 +330,16 @@ def buscar_jurisprudencia_cjf(
             ementa = doc.get("ementa", "")
             ementa = truncar_por_tokens(ementa, max_tokens=1500)
 
+            fonte_partes = []
+            if doc.get("fonte_publicacao"):
+                fonte_partes.append(doc["fonte_publicacao"])
+            if doc.get("data_publicacao"):
+                fonte_partes.append(f'publ. {doc["data_publicacao"]}')
             resultado = BaseResultadoJuridico(
                 conteudo=ementa,
-                fonte="",
+                fonte=" - ".join(fonte_partes),
                 tipo=doc.get("classe", ""),
-                orgao=doc.get("tribunal", ""),
+                orgao=doc.get("orgao_julgador", ""),
                 numero=doc.get("numero", ""),
                 relator=doc.get("relator", ""),
                 data=doc.get("data_julgamento", ""),
